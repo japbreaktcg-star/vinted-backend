@@ -25,8 +25,8 @@ export async function billingRoutes(app: FastifyInstance) {
       mode: "subscription",
       customer: stripeCustomerId,
       line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-      success_url: process.env.STRIPE_SUCCESS_URL || "https://example.com/success",
-      cancel_url: process.env.STRIPE_CANCEL_URL || "https://example.com/cancel",
+      success_url: process.env.STRIPE_SUCCESS_URL || `${process.env.PUBLIC_APP_URL}/checkout-result/`,
+      cancel_url: process.env.STRIPE_CANCEL_URL || `${process.env.PUBLIC_APP_URL}/checkout-result/?status=cancel`,
       // Permet à Stripe de savoir à quel utilisateur rattacher l'abonnement même avant que le webhook n'arrive
       client_reference_id: user.id,
     });

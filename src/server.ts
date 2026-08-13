@@ -67,6 +67,13 @@ await app.register(staticFiles, {
   decorateReply: false, // évite un conflit : le plugin ne peut décorer `reply` qu'une seule fois par appli
 });
 
+// Page affichée après un paiement Stripe (succès ou annulation) sur /checkout-result
+await app.register(staticFiles, {
+  root: path.join(__dirname, "..", "public", "checkout-result"),
+  prefix: "/checkout-result/",
+  decorateReply: false,
+});
+
 // Vérifie que la connexion à la base fonctionne
 app.get("/api/health/db", async (_req, reply) => {
   try {

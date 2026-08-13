@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Abonnement</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; background:#f5f6f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+  .box { background:white; padding:24px; border-radius:10px; width:320px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  h1 { font-size:18px; margin-top:0; }
+  h1.success { color:#098e3a; }
+  h1.cancel { color:#c0392b; }
+  p { font-size:13px; color:#555; }
+</style>
+</head>
+<body>
+  <div class="box" id="box">
+    <h1 id="title">Chargement…</h1>
+    <p id="text"></p>
+  </div>
+  <script>
+    const isSuccess = new URLSearchParams(window.location.search).get('status') !== 'cancel';
+    const title = document.getElementById('title');
+    const text = document.getElementById('text');
+    if (isSuccess) {
+      title.textContent = 'Abonnement activé !';
+      title.className = 'success';
+      text.textContent = "Merci ! Tu peux fermer cette page et retourner dans l'extension — l'accès se débloque automatiquement (ça peut prendre quelques secondes).";
+    } else {
+      title.textContent = 'Paiement annulé';
+      title.className = 'cancel';
+      text.textContent = "Aucun paiement n'a été effectué. Tu peux fermer cette page et réessayer depuis l'extension quand tu veux.";
+    }
+  </script>
+</body>
+</html>
