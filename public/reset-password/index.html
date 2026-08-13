@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Nouveau mot de passe</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; background:#f5f6f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+  .box { background:white; padding:24px; border-radius:10px; width:300px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  h1 { font-size:16px; color:#098e3a; margin-top:0; }
+  input { width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px; }
+  button { width:100%; background:#098e3a; color:white; border:none; padding:9px; border-radius:6px; font-weight:600; cursor:pointer; }
+  #msg { font-size:12px; margin-top:8px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Choisis un nouveau mot de passe</h1>
+    <input type="password" id="newPassword" placeholder="Nouveau mot de passe (8 caractères min.)" />
+    <button onclick="submitReset()">Valider</button>
+    <div id="msg"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

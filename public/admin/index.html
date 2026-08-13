@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Admin — Vinted Extension</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; background:#f5f6f8; margin:0; padding:24px; color:#222; }
+  h1 { font-size: 20px; color:#098e3a; }
+  .cards { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+  .card { background:white; border-radius:10px; padding:14px 18px; box-shadow:0 1px 3px rgba(0,0,0,.08); min-width:140px; }
+  .card .value { font-size:22px; font-weight:700; }
+  .card .label { font-size:12px; color:#666; }
+  table { width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  th, td { text-align:left; padding:8px 10px; font-size:13px; border-bottom:1px solid #eee; }
+  th { background:#fafafa; }
+  .status { padding:2px 8px; border-radius:10px; font-size:11px; }
+  .status.active { background:#e3f9e5; color:#098e3a; }
+  .status.canceled, .status.past_due { background:#fde3e3; color:#c0392b; }
+  .status.none { background:#eee; color:#666; }
+  button { border:none; border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer; margin-right:4px; }
+  .btn-deactivate { background:#c0392b; color:white; }
+  .btn-reactivate { background:#098e3a; color:white; }
+  .btn-delete { background:#333; color:white; }
+  #loginBox { max-width:320px; margin:60px auto; background:white; padding:20px; border-radius:10px; }
+  #loginBox input { width:100%; padding:8px; margin-bottom:8px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px; }
+  #loginBox button { width:100%; background:#098e3a; color:white; padding:8px; }
+  #searchBox { margin-bottom:10px; padding:8px; width:280px; border:1px solid #ddd; border-radius:6px; }
+  #err { color:#c0392b; font-size:12px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+
+<div id="loginBox">
+  <h1>Connexion admin</h1>
+  <input id="email" type="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Mot de passe" />
+  <button onclick="doLogin()">Se connecter</button>
+  <div id="err"></div>
+</div>
+
+<div id="dashboard" class="hidden">
+  <h1>Tableau de bord</h1>
+  <div class="cards" id="cards"></div>
+  <input id="searchBox" placeholder="Rechercher un email..." oninput="loadUsers()" />
+  <table>
+    <thead>
+      <tr><th>Email</th><th>Inscrit le</th><th>Abonnement</th><th>Fin</th><th>Compte</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="usersBody"></tbody>
+  </table>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
