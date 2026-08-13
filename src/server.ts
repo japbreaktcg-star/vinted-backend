@@ -77,23 +77,3 @@ app.get("/api/health/db", async (_req, reply) => {
     return reply.status(500).send({ db: "error" });
   }
 });
-// Bootstrap admin temporaire : donne les droits admin + un abonnement "actif" permanent (sans Stripe)
-// au compte dont l'email est fourni via la variable d'environnement ADMIN_BOOTSTRAP_EMAIL.
-// À retirer juste après utilisation.
-app.post("/api/admin/bootstrap-temp", async (_req, reply) => {
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL;
-  if (!email) return reply.status(500).send({ error: "ADMIN_BOOTSTRAP_EMAIL non configurée." });
-  const user = await prisma.user.update({ where: { email }, data: { isAdmin: true } }).catch(() => null);
-  if (!user) return reply.status(404).send({ error: "Compte introuvable." });
-  await prisma.subscription.upsert({
-    where: { userId: user.id },
-    create: { userId: user.id, stripeCustomerId: "manual-admin-free-access", status: "active" },
-    update: { status: "active" },
-  });
-  return reply.send({ ok: true, email: user.email, isAdmin: true, subscriptionStatus: "active" });
-});
-const port = Number(process.env.PORT) || 3000;
-app.listen({ port, host: "0.0.0.0" }).catch((err) => {
-  app.log.error(err);
-  process.exit(1);
-});
