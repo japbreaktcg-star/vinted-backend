@@ -78,6 +78,29 @@ app.get("/api/health/db", async (_req, reply) => {
   }
 });
 
+// Diagnostic temporaire : indique juste si chaque variable d'environnement attendue est présente
+// et non vide (jamais sa valeur). À retirer une fois le diagnostic terminé.
+const EXPECTED_ENV_VARS = [
+  "DATABASE_URL",
+  "JWT_ACCESS_SECRET",
+  "JWT_REFRESH_SECRET",
+  "PUBLIC_APP_URL",
+  "STRIPE_SECRET_KEY",
+  "STRIPE_PRICE_ID",
+  "STRIPE_WEBHOOK_SECRET",
+  "RESEND_API_KEY",
+  "RESEND_FROM_EMAIL",
+  "CHROME_EXTENSION_ORIGIN",
+  "ADMIN_DASHBOARD_ORIGIN",
+];
+app.get("/api/health/env", async () => {
+  const status: Record<string, boolean> = {};
+  for (const key of EXPECTED_ENV_VARS) {
+    status[key] = Boolean(process.env[key] && process.env[key]!.trim().length > 0);
+  }
+  return status;
+});
+
 const port = Number(process.env.PORT) || 3000;
 app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);
