@@ -6,6 +6,7 @@ import staticFiles from "@fastify/static";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { prisma } from "./db.js";
+import { stripe } from "./lib/stripe.js";
 import { authRoutes } from "./routes/auth.js";
 import { billingRoutes } from "./routes/billing.js";
 import { webhookRoutes } from "./routes/webhooks.js";
@@ -82,6 +83,27 @@ app.get("/api/health/db", async (_req, reply) => {
   } catch (err) {
     app.log.error(err);
     return reply.status(500).send({ db: "error" });
+  }
+});
+
+// Diagnostic temporaire : liste les prix Stripe existants sur le compte connecté (clé déjà configurée
+// sur Railway), pour identifier le bon STRIPE_PRICE_ID. Aucune donnée sensible exposée. À retirer après usage.
+app.get("/api/debug/stripe-prices", async (_req, reply) => {
+  try {
+    const prices = await stripe.prices.list({ limit: 20, expand: ["data.product"] });
+    return reply.send(
+      prices.data.map((p) => ({
+        priceId: p.id,
+        productId: typeof p.product === "string" ? p.product : p.product.id,
+        productName: typeof p.product === "string" ? undefined : (p.product as any).name,
+        active: p.active,
+        amount: p.unit_amount,
+        currency: p.currency,
+        recurring: p.recurring?.interval,
+      }))
+    );
+  } catch (err) {
+    return reply.status(500).send({ error: (err as Error).message });
   }
 });
 
