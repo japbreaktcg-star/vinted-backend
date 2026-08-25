@@ -20,10 +20,32 @@ model User {
   passwordResetTokenHash String?   @map("password_reset_token_hash")
   passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
 
+  // Code affilié utilisé à l'inscription (pour suivre les parrainages d'influenceurs)
+  affiliateCodeId String?        @map("affiliate_code_id")
+  affiliateCode   AffiliateCode? @relation(fields: [affiliateCodeId], references: [id])
+
   subscription  Subscription?
   refreshTokens RefreshToken[]
 
   @@map("users")
+}
+
+// Code de réduction/parrainage donné à un influenceur. Le code de réduction réel est géré côté Stripe
+// (stripePromotionCodeId) — cette table sert à savoir qui a ramené qui, pour calculer les commissions.
+model AffiliateCode {
+  id                    String   @id @default(uuid())
+  code                  String   @unique // ex: "POKEMON10", affiché tel quel à l'influenceur
+  influencerName        String   @map("influencer_name")
+  influencerEmail       String?  @map("influencer_email")
+  discountPercent       Int      @map("discount_percent") // % de réduction pour la personne qui utilise le code
+  commissionPercent     Int      @map("commission_percent") // % de commission reversé à l'influenceur
+  stripePromotionCodeId String?  @map("stripe_promotion_code_id")
+  isActive              Boolean  @default(true) @map("is_active")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  users User[]
+
+  @@map("affiliate_codes")
 }
 
 model Subscription {

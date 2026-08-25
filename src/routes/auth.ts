@@ -8,6 +8,7 @@ import { sendPasswordResetEmail } from "../lib/email.js";
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, "8 caractères minimum"),
+  affiliateCode: z.string().trim().optional(),
 });
 
 const REFRESH_TOKEN_DAYS = 30;
@@ -20,12 +21,23 @@ export async function authRoutes(app: FastifyInstance) {
     const parsed = credentialsSchema.safeParse(req.body);
     if (!parsed.success) return reply.status(400).send({ error: "Email ou mot de passe invalide." });
 
-    const { email, password } = parsed.data;
+    const { email, password, affiliateCode } = parsed.data;
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return reply.status(409).send({ error: "Un compte existe déjà avec cet email." });
 
+    // Code affilié optionnel : rattache le compte à l'influenceur pour le suivi des commissions.
+    // Un code invalide/inactif est simplement ignoré (l'inscription ne doit jamais bloquer pour ça).
+    let affiliateCodeRecord = null;
+    if (affiliateCode) {
+      affiliateCodeRecord = await prisma.affiliateCode.findFirst({
+        where: { code: affiliateCode.toUpperCase(), isActive: true },
+      });
+    }
+
     const passwordHash = await hashPassword(password);
-    const user = await prisma.user.create({ data: { email, passwordHash } });
+    const user = await prisma.user.create({
+      data: { email, passwordHash, affiliateCodeId: affiliateCodeRecord?.id },
+    });
 
     return issueSession(reply, user.id);
   });

@@ -7,7 +7,10 @@ export async function billingRoutes(app: FastifyInstance) {
   // Crée (ou réutilise) le client Stripe lié au compte, puis renvoie l'URL de paiement à ouvrir
   app.post("/api/billing/create-checkout-session", { preHandler: requireAuth }, async (req, reply) => {
     const userId = (req as any).userId as string;
-    const user = await prisma.user.findUnique({ where: { id: userId }, include: { subscription: true } });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { subscription: true, affiliateCode: true },
+    });
     if (!user) return reply.status(404).send({ error: "Compte introuvable." });
 
     let stripeCustomerId = user.subscription?.stripeCustomerId;
@@ -21,6 +24,11 @@ export async function billingRoutes(app: FastifyInstance) {
       });
     }
 
+    // Si le compte a été créé avec un code affilié, on applique automatiquement sa réduction.
+    // Sinon on laisse quand même la possibilité de saisir un code à la main sur la page Stripe
+    // (Stripe interdit de combiner les deux options sur une même session).
+    const promotionCodeId = user.affiliateCode?.stripePromotionCodeId;
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: stripeCustomerId,
@@ -29,6 +37,9 @@ export async function billingRoutes(app: FastifyInstance) {
       cancel_url: process.env.STRIPE_CANCEL_URL || `${process.env.PUBLIC_APP_URL}/checkout-result/?status=cancel`,
       // Permet à Stripe de savoir à quel utilisateur rattacher l'abonnement même avant que le webhook n'arrive
       client_reference_id: user.id,
+      ...(promotionCodeId
+        ? { discounts: [{ promotion_code: promotionCodeId }] }
+        : { allow_promotion_codes: true }),
     });
 
     return reply.send({ url: session.url });

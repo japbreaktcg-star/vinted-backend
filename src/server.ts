@@ -10,6 +10,7 @@ import { authRoutes } from "./routes/auth.js";
 import { billingRoutes } from "./routes/billing.js";
 import { webhookRoutes } from "./routes/webhooks.js";
 import { adminRoutes } from "./routes/admin.js";
+import { affiliateRoutes } from "./routes/affiliate.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,6 +54,7 @@ await app.register(authRoutes);
 await app.register(billingRoutes);
 await app.register(webhookRoutes);
 await app.register(adminRoutes);
+await app.register(affiliateRoutes);
 
 // Sert le dashboard admin (fichiers statiques) sur /admin — pas besoin d'un second hébergement
 await app.register(staticFiles, {

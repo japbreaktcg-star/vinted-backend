@@ -33,6 +33,7 @@ async function doLogin() {
   document.getElementById('dashboard').classList.remove('hidden');
   loadStats();
   loadUsers();
+  loadAffiliateCodes();
 }
 
 async function loadStats() {
@@ -70,6 +71,54 @@ async function loadUsers() {
   `).join('');
 }
 
+async function loadAffiliateCodes() {
+  const res = await api('/api/admin/affiliate-codes');
+  if (!res.ok) return;
+  const codes = await res.json();
+  document.getElementById('affiliateBody').innerHTML = codes.map(c => `
+    <tr>
+      <td><strong>${c.code}</strong></td>
+      <td>${c.influencerName}${c.influencerEmail ? `<br/><span style="color:#888;font-size:11px;">${c.influencerEmail}</span>` : ''}</td>
+      <td>${c.discountPercent}%</td>
+      <td>${c.commissionPercent}%</td>
+      <td>${c.referredUsers}</td>
+      <td>${c.activeReferredUsers}</td>
+      <td>${c.isActive ? 'Actif' : 'Désactivé'}</td>
+      <td>${c.isActive ? `<button class="btn-deactivate-code" onclick="deactivateAffiliateCode('${c.id}')">Désactiver</button>` : '-'}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="8" style="color:#888;">Aucun code affilié pour l\'instant.</td></tr>';
+}
+
+async function createAffiliateCode(event) {
+  event.preventDefault();
+  const form = event.target;
+  const errEl = document.getElementById('affiliateErr');
+  errEl.textContent = '';
+
+  const body = {
+    code: form.code.value.trim(),
+    influencerName: form.influencerName.value.trim(),
+    influencerEmail: form.influencerEmail.value.trim() || undefined,
+    discountPercent: Number(form.discountPercent.value),
+    commissionPercent: Number(form.commissionPercent.value),
+  };
+
+  const res = await api('/api/admin/affiliate-codes', { method: 'POST', body: JSON.stringify(body) });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    errEl.textContent = data.error || "Erreur lors de la création du code.";
+    return;
+  }
+  form.reset();
+  loadAffiliateCodes();
+}
+
+async function deactivateAffiliateCode(id) {
+  if (!confirm('Désactiver ce code ? Il ne sera plus utilisable pour de nouvelles réductions.')) return;
+  await api(`/api/admin/affiliate-codes/${id}/deactivate`, { method: 'POST' });
+  loadAffiliateCodes();
+}
+
 async function deactivate(id) { await api(`/api/admin/users/${id}/deactivate`, { method: 'POST' }); loadUsers(); }
 async function reactivate(id) { await api(`/api/admin/users/${id}/reactivate`, { method: 'POST' }); loadUsers(); }
 async function del(id) {
@@ -86,6 +135,7 @@ if (token) {
       document.getElementById('dashboard').classList.remove('hidden');
       loadStats();
       loadUsers();
+      loadAffiliateCodes();
     } else {
       token = '';
       localStorage.removeItem('adminToken');

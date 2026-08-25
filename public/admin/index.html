@@ -27,6 +27,16 @@
   #searchBox { margin-bottom:10px; padding:8px; width:280px; border:1px solid #ddd; border-radius:6px; }
   #err { color:#c0392b; font-size:12px; }
   .hidden { display:none; }
+  h2 { font-size:16px; margin:28px 0 10px; }
+  #affiliateForm { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:white; padding:12px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:12px; }
+  #affiliateForm input { padding:7px; border:1px solid #ddd; border-radius:6px; font-size:12px; }
+  #affiliateForm input[name="code"] { width:110px; text-transform:uppercase; }
+  #affiliateForm input[name="influencerName"] { width:140px; }
+  #affiliateForm input[name="influencerEmail"] { width:160px; }
+  #affiliateForm input[name="discountPercent"], #affiliateForm input[name="commissionPercent"] { width:70px; }
+  #affiliateForm button { background:#098e3a; color:white; padding:7px 12px; }
+  #affiliateErr { color:#c0392b; font-size:12px; width:100%; }
+  .btn-deactivate-code { background:#c0392b; color:white; }
 </style>
 </head>
 <body>
@@ -48,6 +58,23 @@
       <tr><th>Email</th><th>Inscrit le</th><th>Abonnement</th><th>Fin</th><th>Compte</th><th>Actions</th></tr>
     </thead>
     <tbody id="usersBody"></tbody>
+  </table>
+
+  <h2>Codes affiliés (influenceurs)</h2>
+  <form id="affiliateForm" onsubmit="createAffiliateCode(event)">
+    <input name="code" placeholder="CODE (ex: POKEMON10)" required />
+    <input name="influencerName" placeholder="Nom de l'influenceur" required />
+    <input name="influencerEmail" type="email" placeholder="Email (facultatif)" />
+    <input name="discountPercent" type="number" min="1" max="100" placeholder="% réduc." required />
+    <input name="commissionPercent" type="number" min="0" max="100" placeholder="% commission" required />
+    <button type="submit">Créer le code</button>
+    <div id="affiliateErr"></div>
+  </form>
+  <table>
+    <thead>
+      <tr><th>Code</th><th>Influenceur</th><th>Réduction</th><th>Commission</th><th>Ramenés</th><th>Actifs</th><th>Statut</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="affiliateBody"></tbody>
   </table>
 </div>
 
