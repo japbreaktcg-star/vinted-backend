@@ -11,6 +11,9 @@ export async function requireActiveSubscription(req: FastifyRequest, reply: Fast
   if (reply.sent) return; // requireAuth a déjà coupé la requête (non connecté)
 
   const userId = (req as any).userId as string;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (user?.isAdmin) return; // les comptes admin ont toujours accès, sans abonnement Stripe
+
   const subscription = await prisma.subscription.findUnique({ where: { userId } });
 
   if (!subscription || !ACTIVE_STATUSES.has(subscription.status)) {

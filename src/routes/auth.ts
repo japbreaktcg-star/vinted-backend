@@ -110,13 +110,14 @@ export async function authRoutes(app: FastifyInstance) {
     });
     if (!user || !user.isActive) return reply.status(401).send({ authenticated: false });
 
-    // Tant que l'étape 4 (Stripe) n'est pas branchée, subscriptionActive reste toujours false
     const status = user.subscription?.status ?? "none";
     return reply.send({
       authenticated: true,
       email: user.email,
-      subscriptionActive: status === "active" || status === "trialing",
-      subscriptionStatus: status,
+      isAdmin: user.isAdmin,
+      // Les comptes admin ont toujours un accès actif, sans abonnement Stripe.
+      subscriptionActive: user.isAdmin || status === "active" || status === "trialing",
+      subscriptionStatus: user.isAdmin ? "admin" : status,
       subscriptionEnd: user.subscription?.currentPeriodEnd ?? null,
     });
   });
